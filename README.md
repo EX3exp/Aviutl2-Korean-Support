@@ -26,10 +26,12 @@
    
 5. C드라이브로 가서 오른쪽 마우스를 클릭합니다.
    **숨김 항목**에 체크 표시해 주세요.
-   그러면 반투명하게 생긴 `Program Files`라는 폴더가 보입니다! 들어갑시다.
+   그러면 반투명하게 생긴 `ProgramData`라는 폴더가 보입니다! 들어갑시다.
    
    <img width="354" height="301" alt="image" src="https://github.com/user-attachments/assets/0419c9ca-f434-46c2-86fb-59fea7413339" />
-6. **`Program Files/AviUtl2`에 `style.conf`파일을 넣어 주세요.**
+   <img width="237" height="42" alt="image" src="https://github.com/user-attachments/assets/f3e59ae2-50ff-48b1-a395-ed4270fe8d34" />
+
+6. **`ProgramData/AviUtl2`에 `style.conf`파일을 넣어 주세요.**
    한국어에 맞게 미세하게 조정된 설정 파일입니다. (설정 파일들의 주석들도 번역되어 있습니다.)
    
    <img width="763" height="563" alt="image" src="https://github.com/user-attachments/assets/f646e8a6-c183-4c6e-b815-97be92f3093d" />
