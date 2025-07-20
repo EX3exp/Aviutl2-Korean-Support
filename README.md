@@ -25,7 +25,7 @@
    후술할 **데이터 폴더**는 **Aviutl2의 최초 실행 시에** 생겨나기 때문입니다.
    
 5. C드라이브로 가서 **보기**-> **표시**를 클릭합니다.
-   **숨김 항목**에 체크 표시해 주세요.
+   **숨긴 항목**에 체크 표시해 주세요.
    그러면 반투명하게 생긴 `ProgramData`라는 폴더가 보입니다! 들어갑시다.
    
    <img width="354" height="301" alt="image" src="https://github.com/user-attachments/assets/0419c9ca-f434-46c2-86fb-59fea7413339" />
