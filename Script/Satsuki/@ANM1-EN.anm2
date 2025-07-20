@@ -1,0 +1,912 @@
+@BlinkingIntro
+--track0:In[f],0,150,4,1
+--track1:Out[f],0,150,4,1
+t0=obj.track0
+t1=obj.track1
+if(t0>0) then
+  if(obj.frame<=t0 and obj.frame%2==1) then
+    obj.alpha=0
+  end
+end
+if(t1>0) then
+  if(obj.totalframe-obj.frame<=t1 and obj.frame%2==0) then
+    obj.alpha=0
+  end
+end
+
+
+
+@twitch-like
+--track0:Thres,0,100,50
+--track1:Strength,0,100,25
+--track2:LightThres,0,100,50
+--track3:VibPeriod,0,100,10
+--dialog:XVib,x=50;YVib,y=50;ZVib,z=50;VibMultiplier,haba=3;ShiftAmount,irozure=100;ShiftType[0～2],ty=0;
+siki=obj.track0
+t=obj.track1
+h=obj.track2
+syu=obj.track3
+obj.effect("Vibration","X",x,"Y",y,"Z",z,"Period",syu,"Change the strength at random",1,"Complex vibration",1)
+obj.effect("Vibration","X",-haba*x,"Y",-haba*y,"Z",-haba*z,"Period",haba*syu,"Change the strength at random",1,"Complex vibration",1)
+s=rand(0,100)
+if(s>siki) then
+  x=obj.rand(-obj.screen_w/2,obj.screen_w/2)
+  y=obj.rand(-obj.screen_h/2,obj.screen_h/2)
+  a=obj.rand(0,t)
+  obj.effect("Radial Blur","Range",a,"X",x,"Y",y)
+  obj.effect("Emission","Strength",100+a*4,"Diffusion",800,"Threshold",h)
+  obj.effect("Color shift","Gap width",a/2*irozure/100,"Angle",obj.rand(0,360),"type",ty)
+  obj.zoom=obj.zoom+a/50
+end
+
+
+@CirclePlacement
+--track0:Count,1,100,10,1
+--track1:Dist,0,2000,200
+--track2:Zoom%,0,800,100
+--track3:Spin,-360,360,0
+--dialog:No spin/chk,dir=0;Independent/chk,mode=0;
+n=obj.track0
+s=obj.track2/100
+l=obj.track1
+rz=obj.track3
+
+if(mode==0) then
+  zoom=obj.getvalue("zoom")/100/s
+  s_buf=l*2+math.sqrt((obj.w/zoom)^2+(obj.h/zoom)^2)
+  obj.setoption("dst","tmp",s_buf,s_buf)
+  for i=0,n-1 do
+    r=360*i/n
+    x=math.sin(r*math.pi/180)*l
+    y=-math.cos(r*math.pi/180)*l
+    obj.draw(x,y,0,s,1,0,0,r*(1-dir)+rz)
+  end
+  obj.load("tempbuffer")
+else
+  obj.effect()
+  for i=0,n-1 do
+    r=360*i/n+rz
+    x=math.sin(r*math.pi/180)*l
+    y=-math.cos(r*math.pi/180)*l
+    obj.draw(x,y,0,s,1,0,0,r*(1-dir))
+  end
+end
+
+@CirclePlacement-Camera
+--track0:Count,0,100,10,1
+--track1:Dist,0,2000,200
+--track2:Zoom%,0,800,100
+--track3:Spin,-360,360,0
+--check0:No Y-spin,0
+n=obj.track0
+l=obj.track1
+k=obj.track2/100
+rr=obj.track3
+obj.effect()
+for i=0,n-1 do
+  r=360*i/n+rr
+  x=math.sin(r*math.pi/180)*l*k
+  z=-math.cos(r*math.pi/180)*l*k
+  s=obj.zoom*k
+  ry=-360*i/n-rr
+  if(obj.check0) then
+    ry=ry*0
+  end
+  obj.draw(x,0,z,s,1,0,ry,0)
+end
+
+@CirclePlacement(Order)
+--track0:Count,0,100,10,1
+--track1:Dist,0,2000,200
+--track2:Time[s],-5,5,0.3,0.01
+--track3:Intvl[s],0,5,0.3,0.01
+--check0:Face outward,0
+obj.effect()
+n=obj.track0
+l=obj.track1
+a=obj.track2
+b=obj.track3
+for i=0,n-1 do
+  if(a==0) then
+    return
+  elseif(a<0) then
+    t=(a-(n-1)*b-obj.time+obj.totaltime+i*b)/a
+  else
+    t=(a-obj.time+i*b)/a
+  end
+  t=math.min(1,math.max(t,0))
+  r=360*i/n
+  x=math.sin(r*math.pi/180)*l
+  y=-math.cos(r*math.pi/180)*l
+  rz=360*i/n
+  if(obj.check0) then
+    x=-x
+    rz =-rz-180
+  end
+  obj.draw(x,y,0,1,1-t,0,0,rz)
+end
+
+@CircularMove
+--track0:Radius,-2000,2000,100
+--track1:Speed,-2000,2000,500
+--check0:Face inward,0
+r=obj.track1*obj.time/1000
+obj.ox=math.sin(r*math.pi*2)*obj.track0
+obj.oy=-math.cos(r*math.pi*2)*obj.track0
+obj.rz=r*360+180
+if(obj.check0) then
+  obj.rz=obj.rz-180
+end
+
+@RandomPlacement
+--track0:Count,0,1000,5,1
+--track1:Range,0,1000,100
+--track2:Speed,0,1000,0
+--track3:vAngular,0,1000,0
+--dialog:X-Range[%],wx=100;Y-Range[%],wy=100;Z-Range[%],wz=0;X-Spin/chk,kx=0;Y-Spin/chk,ky=0;Z-Spin/chk,kz=1;Min.Zoom[-%],s_min=0;Seed,ran=0;FixedRandom/chk,fugo=0;
+obj.effect()
+n=obj.track0  --個数
+w=obj.track1/100  --範囲
+v=obj.track2/100  --移動速度
+r=obj.track3/100  --回転速度
+for i=0,n-1 do
+  seed=(i+1+ran)*(1-2*fugo)
+  x=(obj.rand(-obj.screen_w-obj.w,obj.screen_w+obj.w,seed,0)/2*w + obj.rand(-100,100,seed,3)*obj.time*v)*wx/100
+  y=(obj.rand(-obj.screen_h-obj.h,obj.screen_h+obj.h,seed,1)/2*w + obj.rand(-100,100,seed,4)*obj.time*v)*wy/100
+  z=(obj.rand(-obj.screen_w-obj.w,obj.screen_w+obj.w,seed,2)/2*w + obj.rand(-100,100,seed,5)*obj.time*v)*wz/100
+  s=obj.rand(100-s_min,100,seed,6)/100
+  rx=(obj.rand(0,360,seed,7) + obj.rand(-100,100,seed,10)*obj.time*r)*kx
+  ry=(obj.rand(0,360,seed,8) + obj.rand(-100,100,seed,11)*obj.time*r)*ky
+  rz=(obj.rand(0,360,seed,9) + obj.rand(-100,100,seed,12)*obj.time*r)*kz
+  obj.draw(x,y,z,s,1,rx,ry,rz)
+end
+
+@ImageTiling2
+--track0:X-Intvl,-1000,1000,100
+--track1:Y-Intvl,-1000,1000,100
+--track2:X#,1,100,3,1
+--track3:Y#,1,100,3,1
+--dialog:Z-Intvl(px),gz=300;Z#,nz=1;XY-difference/chk,yd=0;ZY-difference/chk,zd=0;as separated objects/chk,mode=0;
+obj.effect()
+nx=obj.track2
+ny=obj.track3
+if(mode<1) then
+  gx=obj.track0/100
+  gy=obj.track1/100
+  w=obj.w
+  h=obj.h
+  for k=0,nz-1 do
+    z0=-gz*(nz-1)/2 + k*gz
+    for j=0,ny-1 do
+      y0=-(ny+(ny-1)*(gy-1))*h/2 + h*j*gy
+      y2=-(ny+(ny-1)*(gy-1))*h/2 + h*(j*gy+1)
+      if(zd==1 and k%2==1) then
+        y0=y0+w/2*gy
+        y2=y2+w/2*gy
+      end
+      for i=0,nx-1 do
+        x0=-(nx+(nx-1)*(gx-1))*w/2 + w*i*gx
+        x1=-(nx+(nx-1)*(gx-1))*w/2 + w*(i*gx+1)
+        if(yd==1 and j%2==0) then
+          x0=x0+w/2*gx
+          x1=x1+w/2*gx
+        end
+        obj.drawpoly(x0,y0,z0,x1,y0,z0,x1,y2,z0,x0,y2,z0, 0,0,w,0,w,h,0,h)      
+      end
+    end
+  end
+else
+  gx=obj.track0
+  gy=obj.track1
+  for k=0,nz-1 do
+    z=-gz*(nz-1)/2 + k*gz
+    for j=0,ny-1 do
+      y=-gy*(ny-1)/2 + j*gy
+      if(zd==1 and k%2==0) then
+        y=y+gy/2
+      end
+      for i=0,nx-1 do
+        x=-gx*(nx-1)/2 + i*gx
+        if(yd==1 and j%2==0) then
+          x=x+gx/2
+        end
+        obj.draw(x,y,z)      
+      end
+    end
+  end
+end
+
+@ImageTiling3
+--track0:X-axis[%],-2000,2000,0
+--track1:Y-axis[%],-2000,2000,0
+--dialog:Initial-Vx,vx=0;Initial-Vy,vy=0;Accel-X,vxa=0;Accel-Y,vya=0;
+obj.effect()
+
+--加速度関連
+v_x=obj.time*vx+vxa/2*obj.time^2
+v_y=obj.time*vy+vya/2*obj.time^2
+if(vx*vxa<0 and obj.time>=-vx/vxa) then
+  v_x=-vx/vxa*vx+vxa/2*(-vx/vxa)^2
+end
+if(vy*vya<0 and obj.time>=-vy/vya) then
+  v_y=-vy/vya*vy+vya/2*(-vy/vya)^2
+end
+
+--ループ
+X=obj.w*obj.track0/100+v_x
+Y=obj.h*obj.track1/100+v_y
+x=math.abs(X)%obj.w
+y=math.abs(Y)%obj.h
+w=obj.w/2
+h=obj.h/2
+
+function loop(xa,xb,ua,ub, xc,xd,uc,ud, ya,yb,va,vb, yc,yd,vc,vd)
+  if(X>=0) then
+    x0=xa x1=xb u0=ua u1=ub
+  else
+    x0=xc x1=xd u0=uc u1=ud
+  end
+  if(Y>=0) then
+    y0=ya y2=yb v0=va v1=vb
+  else
+    y0=yc y2=yd v0=vc v1=vd
+  end
+  obj.drawpoly(x0,y0,0,x1,y0,0,x1,y2,0,x0,y2,0, u0,v0,u1,v0,u1,v1,u0,v1)
+end
+
+loop(x-w,w,0,w*2-x, -w,w-x,x,w*2, y-h,h,0,h*2-y, -h,h-y,y,h*2)  --中央
+loop(x-w,w,0,w*2-x, -w,w-x,x,w*2, -h,y-h,h*2-y,h*2, h-y,h,0,y)  --上下
+loop(-w,x-w,w*2-x,w*2, w-x,w,0,x, y-h,h,0,h*2-y, -h,h-y,y,h*2)  --左右
+loop(-w,x-w,w*2-x,w*2, w-x,w,0,x, -h,y-h,h*2-y,h*2, h-y,h,0,y)  --斜め
+
+@UnidirctionalPlacement
+--track0:Count,1,200,5,1
+--track1:Intvl,-1000,1000,50
+--track2:Angle,-720,720,0
+--track3:SpinAxis,0,2,0,1
+--check0:Both direction,sou=0
+obj.effect()
+n=obj.track0
+l=obj.track1
+r=obj.track2+90
+w,h=obj.w,obj.h
+aa=0 bb=n-1
+if(obj.check0) then
+  aa=-n+1 bb=n-1
+end
+for i=aa,bb do
+  sin=math.sin(r*math.pi/180)*l*i
+  cos=-math.cos(r*math.pi/180)*l*i
+  if(obj.track3<1) then
+    cx=sin cy=cos z=0
+  elseif(obj.track3<2) then
+    cx=sin cy=0 z=cos
+  else
+    cx=0 cy=cos z=sin
+  end
+  x0,x1=cx-w/2,cx+w/2
+  y0,y2=cy-h/2,cy+h/2
+  obj.drawpoly(x0,y0,z,x1,y0,z,x1,y2,z,x0,y2,z)
+end
+
+@ParticleReturns
+--track0:Freq,0.1,500,10
+--track1:Dist,1,10000,500
+--track2:Speed,1,2000,400
+--track3:Facing,-360,360,0
+--dialog:Random angle[deg],dir_ran=30;Alpha speed[%],av=100;Scaling speed[%],sv=0;Random speed[-%],v_ran=0;RandomScaling[-%],s_ran=0;Random Z-angle[deg],rz_ran=0;Random-X,x_ran=0;Random-Y,y_ran=0;Random-Z,z_ran=0;Angular speed[deg],rv_ran=0;Spin-XY/chk,rxy_ran=0;Random-Z facing,zi_ran=0;
+obj.effect()
+b=1/obj.track0      --出力間隔(秒)
+l=obj.track1        --距離
+v=l/obj.track2      --距離を進むのにかかる時間
+dir=-obj.track3+90  --出力方向
+n=obj.totaltime/b
+for i=0,n-1 do
+  t=(v-obj.time+i*b)/v
+  t=math.min(1,math.max(t,0))
+  direct=obj.rand(dir-dir_ran/2,dir+dir_ran/2,i,0)
+  x=   l*math.cos(direct*math.pi/180)*(1-t)*obj.rand(100-v_ran,100,i,12)/100+obj.rand(-x_ran/2,x_ran/2,i,1)
+  y=   l*math.sin(direct*math.pi/180)*(1-t)*obj.rand(100-v_ran,100,i,12)/100+obj.rand(-y_ran/2,y_ran/2,i,2)
+  z=obj.rand(-zi_ran/2,zi_ran/2,i,11)*(1-t)*obj.rand(100-v_ran,100,i,12)/100+obj.rand(-z_ran/2,z_ran/2,i,3)
+  zoom=1+sv/100*(1-t)-obj.rand(0,s_ran,i,10)/100
+  alpha=1-av/100*(1-t)
+  rx=rxy_ran*(obj.rand(0,360,i,4)    +obj.rand(-rv_ran/2,rv_ran/2,i,7)*obj.time)
+  ry=rxy_ran*(obj.rand(0,360,i,5)    +obj.rand(-rv_ran/2,rv_ran/2,i,8)*obj.time)
+  rz=obj.rand(-rz_ran/2,rz_ran/2,i,6)+obj.rand(-rv_ran/2,rv_ran/2,i,9)*obj.time
+  if(t==0 or t==1) then
+    alpha=0
+  end
+  obj.draw(x,y,z,zoom,alpha,rx,ry,rz)
+end
+
+@Shiny
+--track0:Count,1,500,20,1
+--track1:Dist,0,10000,300,1
+--track2:Speed,1,2000,100,1
+--track3:Area,0,2000,0
+--dialog:Random Speed[-%],v_ran=90;Alpha speed[%],av=100;Scaling speed[%],sv=0;random spin/chk,rz_ran=0;Angular speed[deg],rzv_ran=0;Random scaling[-%],s_ran=0;Slowdown[1-5],beki=3;Vanish/chk,zero=1;Seed,ran=0;
+obj.effect()
+n=obj.track0
+l=obj.track1
+v=l/obj.track2      --距離を進むのにかかる時間
+sl=obj.track3
+for i=0,n-1 do
+  t=math.max((v-obj.time)/v,0)
+  t=t^beki
+  x=(l*(1-t)+obj.rand(0,sl,i,ran))*math.cos(obj.rand(0,360,i,ran)*math.pi/180)*obj.rand(100-v_ran,100,i,1+ran)/100
+  y=(l*(1-t)+obj.rand(0,sl,i,ran))*math.sin(obj.rand(0,360,i,ran)*math.pi/180)*obj.rand(100-v_ran,100,i,1+ran)/100
+  zoom=1+sv/100*(1-t)-obj.rand(0,s_ran,i,10+ran)/100
+  alpha=1-av/100*(1-t)
+  rz=obj.rand(0,360,i,6+ran)*rz_ran+obj.rand(-rzv_ran/2,rzv_ran/2,i,9+ran)*obj.time
+  if(zero==1 and t==0) then
+    alpha=0
+  end
+  obj.draw(x,y,0,zoom,alpha,0,0,rz)
+end
+
+@Stretch
+--track0:Top[%],-800,800,100
+--track1:Right[%],-800,800,100
+--track2:Bottom[%],-800,800,100
+--track3:Left[%],-800,800,100
+--dialog:TopCenter[%],e=0;RightCenter[%],f=0;BottomCenter[%],g=0;LeftCenter[%],h=0;
+a=obj.track0 b=obj.track1 c=obj.track2 d=obj.track3
+e=e/100*obj.w/2 f=f/100*obj.h/2 g=g/100*obj.w/2 h=h/100*obj.h/2
+obj.effect()
+obj.drawpoly(
+obj.ox+(-e-obj.w/2)*a/100+e,obj.oy+(-h-obj.h/2)*d/100+h,0,
+obj.ox+(-e+obj.w/2)*a/100+e,obj.oy+(-f-obj.h/2)*b/100+f,0,
+obj.ox+(-g+obj.w/2)*c/100+g,obj.oy+(-f+obj.h/2)*b/100+f,0,
+obj.ox+(-g-obj.w/2)*c/100+g,obj.oy+(-h+obj.h/2)*d/100+h,0)
+
+@RandomBlinking
+--track0:Threshold,0,100,50,1
+--track1:Clearness,0,100,0
+--track2:Intvl[s],0.01,5,0.01,0.01
+a=rand(0,99,1,math.floor(obj.time/obj.track2))
+if(a>=obj.track0) then
+  obj.alpha=obj.alpha*obj.track1/100
+end
+
+@StretchingIntro
+--track0:Time[s],-5,5,0.3,0.01
+--track1:Variation%,-100,100,0
+--dialog:X-axis1,xa=40;X-axis2,xb=150;Y-axis1,ya=150;Y-axis2,yb=80;
+t=obj.track0/3
+v=obj.track1
+xa=xa+(xa-100)*v/100
+xb=xb+(xb-100)*v/100
+ya=ya+(ya-100)*v/100
+yb=yb+(yb-100)*v/100
+
+if(t==0) then
+ return
+elseif(t>0) then
+  if(obj.time<t) then
+    ta=(t-obj.time)/t
+    xscale=0+(xa-0)*(1-ta)
+    yscale=0+(ya-0)*(1-ta)
+  elseif(obj.time<2*t) then
+    tb=(t-(obj.time-t))/t
+    xscale=xa+(xb-xa)*(1-tb)
+    yscale=ya+(yb-ya)*(1-tb)
+  elseif(obj.time<3*t) then
+    tc=(t-(obj.time-2*t))/t
+    xscale=xb+(100-xb)*(1-tc)
+    yscale=yb+(100-yb)*(1-tc)
+  else
+    xscale=100
+    yscale=100
+  end
+else
+  t=math.abs(t)
+  if(obj.time>obj.totaltime-3*t) then
+    if(obj.time<obj.totaltime-2*t) then
+      tc=(t-(obj.time-obj.totaltime+3*t))/t
+      xscale=100+(xb-100)*(1-tc)
+      yscale=100+(yb-100)*(1-tc)
+    elseif(obj.time<obj.totaltime-t) then
+      tb=(t-(obj.time-obj.totaltime+2*t))/t
+      xscale=xb+(xa-xb)*(1-tb)
+      yscale=yb+(ya-yb)*(1-tb)
+    else
+      ta=(t-(obj.time-obj.totaltime+t))/t
+      xscale=xa+(0-xa)*(1-ta)
+      yscale=ya+(0-ya)*(1-ta)
+    end
+  else
+    xscale=100
+    yscale=100
+  end
+end
+
+obj.zoom=math.max(xscale,yscale)/100
+if(xscale>yscale) then
+  obj.aspect=yscale/xscale-1
+else
+  obj.aspect=1-xscale/yscale
+end
+
+@DampeningIntro
+--track0:Time,-5,5,0.6,0.01
+--track1:Power,0,8,2.0,0.01
+--track2:Amp,0,800,100
+--track3:Type,0,4,0,1
+if( obj.track0 == 0 ) then
+  return
+elseif( obj.track0 < 0 ) then
+  t = (obj.track0-obj.time+obj.totaltime)/obj.track0
+else
+  t = (obj.track0-obj.time)/obj.track0
+end
+if( t >= 0 ) then
+  n = obj.track1*2+1
+  if( n <= 1 ) then
+    t = t*t
+  elseif( t > 1-1/n ) then
+    t = 1-(1-t)*n
+  else
+    t = t*n/(n-1)
+    t = math.sin((t-1)*(n-1)*math.pi)*t*0.4/(1+(1-t)*3)
+  end
+  if(obj.track3==0) then
+    x=1 y=1
+  elseif(obj.track3==1) then
+    x=0 y=1
+  elseif(obj.track3==2) then
+    x=1 y=0
+  elseif(obj.track3==3) then
+    x=-1 y=1
+  else
+    x=1 y=-1
+  end
+  xscale = math.max(0,100-t*x*obj.track2)
+  yscale = math.max(0,100-t*y*obj.track2)
+  obj.zoom=math.max(xscale,yscale)/100
+  if(xscale>yscale) then
+    obj.aspect=yscale/xscale-1
+  else
+    obj.aspect=1-xscale/yscale
+  end
+end
+
+
+@SplitedIntro-Slice
+--track0:Time[s],-5,5,1,0.01
+--track1:Intvl[s],0,5,0.3,0.01
+--track2:Div#,1,500,5,1
+--track3:Mode,0,3,0,1
+--dialog:Vert/chk,tated=0;Hori/chk,tateb=0;Overlap/chk,kougo=0;Accel[1-5],beki=2;Separation[%],l=100;
+obj.effect()
+t=obj.track0
+u=obj.track1
+n=obj.track2
+mode=obj.track3
+--a:登場座標(x,y)の符号
+--d:登場順番
+for i=0,n-1 do
+  if(mode<1) then
+    a=1  d=i*u
+  elseif(mode<2) then
+    a=1  d=(n-1-i)*u
+  elseif(mode<3) then
+    a=-1 d=i*u
+  else
+    a=-1 d=(n-1-i)*u
+  end
+  if(tated==0) then
+    c=1
+  else
+    c=0
+  end
+  if(kougo==1) then
+    if(i%2==1) then
+      a=-1
+    end
+  end
+
+  if(t==0) then
+    return
+  elseif(t<0) then
+    r=(t-n*u-obj.time+obj.totaltime+d)/t
+  else
+    r=(t-obj.time+d)/t
+  end
+  r=math.min(1,math.max(r,0))
+  r=r^beki
+  x=(obj.screen_w*l/100)*r*c*a
+  y=(obj.screen_h*l/100)*r*(1-c)*a
+
+  if(tateb==1) then
+    w=obj.w/n
+    x0=x-obj.w/2+w*i
+    x1=x-obj.w/2+w*(i+1)+1
+    y0=y-obj.h/2
+    y2=y+obj.h/2
+    u0=w*i
+    u1=w*(i+1)+1
+    obj.drawpoly(x0,y0,0,x1,y0,0,x1,y2,0,x0,y2,0, u0,0,u1,0,u1,obj.h,u0,obj.h)
+  else
+    h=obj.h/n
+    x0=x-obj.w/2
+    x1=x+obj.w/2
+    y0=y-obj.h/2+h*i
+    y2=y-obj.h/2+h*(i+1)+1
+    v0=h*i
+    v1=h*(i+1)+1
+    obj.drawpoly(x0,y0,0,x1,y0,0,x1,y2,0,x0,y2,0, 0,v0,obj.w,v0,obj.w,v1,0,v1)
+  end
+end
+
+@SplitedIntro-Spin
+--track0:Time[s],-5,5,1,0.01
+--track1:Intvl[s],0,5,0.3,0.01
+--track2:Spin,-720,720,360
+--track3:Div#,1,500,5,1
+--dialog:Fade/chk,f=1;Vert/chk,yjiku=0;Reverse/chk,jun=0;Accel[1-5],beki=2;
+obj.effect()
+t=obj.track0
+u=obj.track1
+k=obj.track2
+n=obj.track3
+for i=0,n-1 do
+  if(jun==0) then
+    d=i*u
+  else
+    d=(n-1-i)*u
+  end
+
+  if(t==0) then
+    return
+  elseif(t<0) then
+    r=(t-n*u-obj.time+obj.totaltime+d)/t
+  else
+    r=(t-obj.time+d)/t
+  end
+  r=math.min(1,math.max(r,0))
+  r=r^beki
+  if(f==1) then
+    obj.alpha=1-r
+  end
+  if(yjiku==0) then
+    obj.ry=k*r
+    h=obj.h/n
+    x0=obj.w/2
+    y0=-obj.h/2+h*i
+    y2=-obj.h/2+h*(i+1)+1
+    v0=h*i
+    v1=h*(i+1)+1
+    obj.drawpoly(-x0,y0,0,x0,y0,0,x0,y2,0,-x0,y2,0, 0,v0,x0*2,v0,x0*2,v1,0,v1)
+  else
+    obj.rx=k*r
+    w=obj.w/n
+    x0=-obj.w/2+w*i
+    x1=-obj.w/2+w*(i+1)+1
+    y0=obj.h/2
+    u0=w*i
+    u1=w*(i+1)+1
+    obj.drawpoly(x0,-y0,0,x1,-y0,0,x1,y0,0,x0,y0,0, u0,0,u1,0,u1,y0*2,u0,y0*2)
+  end
+end
+
+@SplitedIntro-Square
+--track0:Div#,1,500,5,1
+--track1:Time,-10,10,5,0.01
+--track2:Facing,-360,360,0
+--track3:Scatter,0,360,0
+--dialog:Fade/chk,f=0;Separation[%],ll=100;Vortex[deg],rz=0;Z-Dist,oz=0;Aspect[%],as=0;Accel[1-5],beki=2;
+obj.effect()
+n=obj.track0
+t=obj.track1/2
+d=obj.track2
+b=obj.track3
+h=obj.h/n w=obj.w/n
+for j=0,n-1 do
+  for i=0,n-1 do
+    if(t==0) then
+      return
+    elseif(t<0) then
+      r=(t-obj.time+obj.totaltime+obj.rand(0,100,i,j)/100*t)/t
+    else
+      r=(t-obj.time+obj.rand(0,100,i,j)/100*t)/t
+    end
+    r=math.min(1,math.max(r,0))
+    r=r^beki
+    obj.oz=oz*r
+    obj.alpha=1-r*f
+    obj.aspect=as/100*r
+    obj.rz=rz*r
+    bun=rand(-b/2,b/2,i,j+1000)
+    l=math.sqrt(obj.screen_w^2+obj.screen_h^2)*ll/100
+    x=math.sin((d+bun)*math.pi/180)*l*r
+    y=-math.cos((d+bun)*math.pi/180)*l*r
+    x0=x-obj.w/2+w*j
+    x1=x-obj.w/2+w*(j+1)+1
+    y0=y-obj.h/2+h*i
+    y2=y-obj.h/2+h*(i+1)+1
+    u0=w*j
+    u1=w*(j+1)+1
+    v0=h*i
+    v1=h*(i+1)+1
+    obj.drawpoly(x0,y0,0,x1,y0,0,x1,y2,0,x0,y2,0, u0,v0,u1,v0,u1,v1,u0,v1)
+  end
+end
+
+@RollingCamera
+--track0:Bend,10,500,10
+--track1:Center[%],-100,100,0
+--dialog:VertRoll/chk,tate=0;Flip/chk,hanten=0;Place axis at center/chk,m=0;Div#,n=28;
+obj.effect()
+nd=n*obj.track0/10
+c=math.floor(n/2*obj.track1/100)
+if(tate==0) then
+  r=obj.w/n/math.sin(math.pi*2/nd)
+  if(hanten==1) then
+    obj.effect("Reversal","Flip horizontal","1")
+    obj.ry=180
+  end
+  y0=-obj.h/2
+  y1=obj.h/2
+  v0=0
+  v1=obj.h
+  for x=-n/2+c,n/2+c-1 do
+    x0= r*math.sin(math.pi*2*x    /nd)
+    x1= r*math.sin(math.pi*2*(x+1)/nd)
+    z0=-r*math.cos(math.pi*2*x    /nd)+r*(1-m)
+    z1=-r*math.cos(math.pi*2*(x+1)/nd)+r*(1-m)
+    u0=obj.w*(x+n/2-c)/n
+    u1=obj.w*(x+n/2+1-c)/n
+    obj.drawpoly(x0,y0,z0,x1,y0,z1,x1,y1,z1,x0,y1,z0,u0,v0,u1,v0,u1,v1,u0,v1)
+  end
+else
+  r=obj.h/n/math.sin(math.pi*2/nd)
+  if(hanten==1) then
+    obj.effect("Reversal","Flip vertical","1")
+    obj.rx=180
+  end
+  x0=-obj.w/2
+  x1=obj.w/2
+  u0=0
+  u1=obj.w
+  for y=-n/2+c,n/2+c-1 do
+    y0=r*math.cos(math.pi*(2*y    /nd-0.5))
+    y1=r*math.cos(math.pi*(2*(y+1)/nd-0.5))
+    z0=r*math.sin(math.pi*(2*y    /nd-0.5))+r*(1-m)
+    z1=r*math.sin(math.pi*(2*(y+1)/nd-0.5))+r*(1-m)
+    v0=obj.h*(y+n/2-c)/n
+    v1=obj.h*(y+n/2-c+1)/n
+    obj.drawpoly(x0,y0,z0,x1,y0,z0,x1,y1,z1,x0,y1,z1,u0,v0,u1,v0,u1,v1,u0,v1)   
+  end
+end
+
+@SphereProjection-Camera
+--track0:Bend,10,500,10
+--track1:CenterX,-100,100,0
+--track2:CenterY,-100,100,0
+--check0:Flip,0
+--obj.setoption('antialias',0)
+obj.effect("Reversal","Flip vertical","1")
+obj.effect()
+if(obj.check0) then
+  obj.effect("Reversal","Flip horizontal","1")
+  obj.ry=180
+end
+w=28 h=28
+k=obj.track0
+wd=w*k/10
+hd=h*k/10
+cx=math.floor(w/2*obj.track1/100)
+cy=math.floor(h/2*obj.track2/100)
+r=obj.w/w/math.sin(math.pi*2/wd)
+for y=-h/2+cy,h/2+cy-1 do
+  y0 = -r*math.sin(math.pi*y    /hd)
+  r0 =  r*math.cos(math.pi*y    /hd)
+  y1 = -r*math.sin(math.pi*(y+1)/hd)
+  r1 =  r*math.cos(math.pi*(y+1)/hd)
+  v0 = obj.h*(y+h/2-cy)/h;
+  v1 = obj.h*(y+h/2-cy+1)/h;
+  for x=-w/2+cx,w/2+cx-1 do
+    x0 =  r0*math.sin(math.pi*2*x    /wd)
+    x1 =  r0*math.sin(math.pi*2*(x+1)/wd)
+    x2 =  r1*math.sin(math.pi*2*(x+1)/wd)
+    x3 =  r1*math.sin(math.pi*2*x    /wd)
+    z0 = -r0*math.cos(math.pi*2*x    /wd)+r
+    z1 = -r0*math.cos(math.pi*2*(x+1)/wd)+r
+    z2 = -r1*math.cos(math.pi*2*(x+1)/wd)+r
+    z3 = -r1*math.cos(math.pi*2*x    /wd)+r
+    u0 = obj.w*(x+w/2-cx)/w;
+    u1 = obj.w*(x+w/2-cx+1)/w;
+    obj.drawpoly(x0,y0,z0,x1,y0,z1,x2,y1,z2,x3,y1,z3,u0,v0,u1,v0,u1,v1,u0,v1)
+  end
+end
+
+@Deform-Camera
+--track0:Deform,0,500,100
+--track1:CenterX%,-100,100,0
+--track2:CenterY%,-100,100,0
+--track3:FixedLoc,0,2,0,1
+--dialog:Div#,n=28;
+obj.effect()
+t=obj.track0/100
+cx=obj.track1/2
+cy=obj.track2/2
+k=obj.track3
+h=obj.h/n w=obj.w/n
+H=obj.h/2 W=obj.w/2
+g=1 --隙間を1ピクセル埋めています
+obj.ox=W*2*cx/100
+obj.oy=H*2*cy/100
+
+if(k<1) then
+  s=math.sqrt(W^2+H^2)/math.sqrt(W^2+H^2)^t --対角線を固定
+elseif(k<2) then
+  s=W/W^t --横幅を固定
+else
+  s=H/H^t --縦幅を固定
+end
+
+for i=0,n-1 do
+  y0=-H*2*cy/100-H+h*i
+  y1=-H*2*cy/100-H+h*(i+1)+g
+  v0=h*i
+  v1=h*(i+1)+g
+  for j=0,n-1 do
+    x0=-W*2*cx/100-W+w*j
+    x1=-W*2*cx/100-W+w*(j+1)+g
+    u0=w*j
+    u1=w*(j+1)+g
+    lx0=math.cos(math.atan2(y0,x0))*math.sqrt(x0^2+y0^2)^t*s
+    lx1=math.cos(math.atan2(y0,x1))*math.sqrt(x1^2+y0^2)^t*s
+    lx2=math.cos(math.atan2(y1,x1))*math.sqrt(x1^2+y1^2)^t*s
+    lx3=math.cos(math.atan2(y1,x0))*math.sqrt(x0^2+y1^2)^t*s
+    ly0=math.sin(math.atan2(y0,x0))*math.sqrt(x0^2+y0^2)^t*s
+    ly1=math.sin(math.atan2(y0,x1))*math.sqrt(x1^2+y0^2)^t*s
+    ly2=math.sin(math.atan2(y1,x1))*math.sqrt(x1^2+y1^2)^t*s
+    ly3=math.sin(math.atan2(y1,x0))*math.sqrt(x0^2+y1^2)^t*s
+    obj.drawpoly(lx0,ly0,0,lx1,ly1,0,lx2,ly2,0,lx3,ly3,0, u0,v0,u1,v0,u1,v1,u0,v1)
+  end
+end
+
+@XY-Scaling
+--track0:XScale,0,1000,100
+--track1:YScale,0,1000,100
+xscale=obj.track0
+yscale=obj.track1
+obj.zoom=math.max(xscale,yscale)/100
+if(xscale>yscale) then
+  --アスペクト比をマイナス方向にしてやる必要がある
+  obj.aspect=yscale/xscale-1
+else
+  --アスペクト比をプラス方向にしてやる必要がある
+  obj.aspect=1-xscale/yscale
+end
+
+@Shatter2
+--track0:Duration,0,50,0,0.01
+--track1:Center X,-1000,1000,0
+--track2:Center Y,-1000,1000,0
+--track3:Center z,-1000,1000,0
+--dialog:Frag.Size,size=50;Speed,speed=100;Gravity,grav=100;Delay,delay=100;Impact,impact=100;Random spin,spin=100;Random facing,diff=100;Playback speed,step=1.0;
+local px={}
+local py={}
+local pz={}
+local pu={}
+local pv={}
+
+tm = obj.track0/10*step
+obj.effect()
+grav = grav*6
+delay = delay*0.002
+impact = impact*0.1
+spin = math.floor(spin*10)
+diff = diff/80
+if( size < 10 ) then
+ size = 10
+end
+xl = obj.w
+yl = obj.h
+ax = obj.track1
+ay = obj.track2
+az = obj.track3
+sp = speed*0.01*math.sqrt(impact)
+w = math.floor(xl/size)
+h = math.floor(yl/size)
+l = math.sqrt(xl*xl+yl*yl)
+if( w < 2 ) then
+ w = 2
+elseif( w > xl ) then
+ w = xl
+end
+if( h < 2 ) then
+ h = 2
+elseif( h > yl ) then
+ h = yl
+end
+pw = xl/w/2.3
+ph = yl/h/2.3
+for y=0,h-1 do
+ for x=0,w-1 do
+  -- 各頂点を計算
+  pu[0] = xl*x/w
+  pu[1] = xl*(x+1)/w
+  pu[2] = pu[1]
+  pu[3] = pu[0]
+  pv[0] = yl*y/h
+  pv[1] = pv[0]
+  pv[2] = yl*(y+1)/h
+  pv[3] = pv[2]
+  pu[0] = pu[0] + obj.rand(-pw,pw,x  ,y  )
+  pu[1] = pu[1] + obj.rand(-pw,pw,x+1,y  )
+  pu[2] = pu[2] + obj.rand(-pw,pw,x+1,y+1)
+  pu[3] = pu[3] + obj.rand(-pw,pw,x  ,y+1)
+  pv[0] = pv[0] + obj.rand(-ph,ph,x  ,y  +1000)
+  pv[1] = pv[1] + obj.rand(-ph,ph,x+1,y  +1000)
+  pv[2] = pv[2] + obj.rand(-ph,ph,x+1,y+1+1000)
+  pv[3] = pv[3] + obj.rand(-ph,ph,x  ,y+1+1000)
+  if( x == 0 ) then
+   pu[0] = 0
+   pu[3] = 0
+  elseif ( x == w-1 ) then
+   pu[1] = xl
+   pu[2] = xl
+  end
+  if( y == 0 ) then
+   pv[0] = 0
+   pv[1] = 0
+  elseif ( y == h-1 ) then
+   pv[2] = yl
+   pv[3] = yl
+  end
+  -- 基準の計算
+  gx = (pu[0]+pu[1]+pu[2]+pu[3])/4
+  gy = (pv[0]+pv[1]+pv[2]+pv[3])/4
+  gz = 0
+  cx = gx-xl/2
+  cy = gy-yl/2
+  cz = 0
+  vx = cx-ax
+  vy = cy-ay
+  vz = -az
+  v = math.sqrt(vx*vx+vy*vy+vz*vz)
+  -- 時間の計算
+  t = tm-v/l*delay
+  if( t < 0 ) then
+   t = 0
+   obj.setoption('antialias',0)
+  else
+   obj.setoption('antialias',1)
+  end
+  -- 回転を計算
+  xx = t*obj.rand(-spin,spin,x,y+2000)/100
+  yy = t*obj.rand(-spin,spin,x,y+3000)/100
+  zz = t*obj.rand(-spin,spin,x,y+4000)/100
+  sin_x = math.sin(xx);
+  cos_x = math.cos(xx);
+  sin_y = math.sin(yy);
+  cos_y = math.cos(yy);
+  sin_z = math.sin(zz);
+  cos_z = math.cos(zz);
+  m00 =  cos_y*cos_z
+  m01 = -cos_y*sin_z
+  m10 =  cos_x*sin_z +sin_x*cos_z*sin_y
+  m11 =  cos_x*cos_z -sin_x*sin_z*sin_y
+  m20 =  sin_x*sin_z -cos_x*cos_z*sin_y
+  m21 =  sin_x*cos_z +cos_x*sin_z*sin_y
+  for i=0,3 do
+   xx = pu[i]-gx
+   yy = pv[i]-gy
+   px[i] = m00*xx + m01*yy
+   py[i] = m10*xx + m11*yy
+   pz[i] = m20*xx + m21*yy
+  end
+  -- 表示座標を計算
+  v = 1/(1+v*v/(l*l)*impact)
+  vx = vx*v + obj.rand(-size,size,x,y+4000)*diff
+  vy = vy*v + obj.rand(-size,size,x,y+5000)*diff
+  vz = vz*v + obj.rand(-size,size,x,y+6000)*diff
+  cx = cx + t*vx*sp
+  cy = cy + t*vy*sp + t*t*grav
+  cz = cz + t*vz*sp
+  obj.drawpoly(px[0]+cx,py[0]+cy,pz[0]+cz,px[1]+cx,py[1]+cy,pz[1]+cz,px[2]+cx,py[2]+cy,pz[2]+cz,px[3]+cx,py[3]+cy,pz[3]+cz, pu[0],pv[0],pu[1],pv[1],pu[2],pv[2],pu[3],pv[3])
+ end
+end

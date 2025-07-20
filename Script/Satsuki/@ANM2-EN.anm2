@@ -1,0 +1,450 @@
+@Scale-by-1-over-N
+--track0:100/n,1,2000,100
+obj.zoom=obj.zoom*100/obj.track0
+
+@2nd-Bezier
+--track0:CtrlX,-1000,1000,0
+--track1:CtrlY,-1000,1000,-100
+--track2:CtrlZ,-1000,1000,0
+--dialog:Show assist line/chk,hojo=1;line color/col,color=0xff0000;
+obj.effect()
+--始点
+x0=obj.getvalue("x",0)
+y0=obj.getvalue("y",0)
+z0=obj.getvalue("z",0)
+xa=x0-obj.getvalue("x",obj.time)
+ya=y0-obj.getvalue("y",obj.time)
+za=z0-obj.getvalue("z",obj.time)
+
+--終点
+x1=obj.getvalue("x",obj.totaltime)
+y1=obj.getvalue("y",obj.totaltime)
+z1=obj.getvalue("z",obj.totaltime)
+xb=x1-obj.getvalue("x",obj.time)
+yb=y1-obj.getvalue("y",obj.time)
+zb=z1-obj.getvalue("z",obj.time)
+
+--制御点
+sx=obj.track0+(xa+xb)/2
+sy=obj.track1+(ya+yb)/2
+sz=obj.track2+(za+zb)/2
+
+--座標の計算
+t=obj.time/obj.totaltime
+obj.ox=((1-t)^2)*xa+2*t*(1-t)*sx+(t^2)*xb
+obj.oy=((1-t)^2)*ya+2*t*(1-t)*sy+(t^2)*yb
+obj.oz=((1-t)^2)*za+2*t*(1-t)*sz+(t^2)*zb
+obj.draw()
+
+--補助線
+if(hojo==1) then
+  a=0.5
+  obj.setoption("billboard",3)
+  obj.load("figure","Circle",color,50)
+  obj.draw(xa,ya,za,1,a)
+  obj.draw(xb,yb,zb,1,a)
+  obj.setoption("billboard",3)
+  obj.load("figure","Square",color,50)
+  obj.draw(sx,sy,sz,1,a)
+  obj.setoption("billboard",3)
+  obj.load("figure","Circle",color,10)
+  n=20
+  for i=0,n-1 do
+    t=i/n
+    x=((1-t)^2)*xa+2*t*(1-t)*sx+(t^2)*xb
+    y=((1-t)^2)*ya+2*t*(1-t)*sy+(t^2)*yb
+    z=((1-t)^2)*za+2*t*(1-t)*sz+(t^2)*zb
+    obj.draw(x,y,z,1,a)
+  end
+end
+
+
+@3rd-Bezier
+--track0:CtrlXi,-500,500,0
+--track1:CtrlYi,-500,500,-100
+--track2:CtrlXf,-500,500,0
+--track3:CtrlYf,-500,500,-100
+--dialog:CtrlZi,sza=0;CtrlZf,szb=0;Show assist line/chk,se=1;pt.color/col,color=0xff0000;
+obj.effect()
+--始点
+x0=obj.getvalue("x",0)
+y0=obj.getvalue("y",0)
+z0=obj.getvalue("z",0)
+xa=x0-obj.getvalue("x",obj.time)
+ya=y0-obj.getvalue("y",obj.time)
+za=z0-obj.getvalue("z",obj.time)
+
+--終点
+x1=obj.getvalue("x",obj.totaltime)
+y1=obj.getvalue("y",obj.totaltime)
+z1=obj.getvalue("z",obj.totaltime)
+xb=x1-obj.getvalue("x",obj.time)
+yb=y1-obj.getvalue("y",obj.time)
+zb=z1-obj.getvalue("z",obj.time)
+
+--制御点
+sxa=obj.track0
+sya=obj.track1
+sxb=obj.track2
+syb=obj.track3
+
+--座標の計算
+t=obj.time/obj.totaltime
+obj.ox=((1-t)^3)*xa+3*t*((1-t)^2)*(sxa+xa)+3*(t^2)*(1-t)*(sxb+xb)+(t^3)*xb
+obj.oy=((1-t)^3)*ya+3*t*((1-t)^2)*(sya+ya)+3*(t^2)*(1-t)*(syb+yb)+(t^3)*yb
+obj.oz=((1-t)^3)*za+3*t*((1-t)^2)*(sza+za)+3*(t^2)*(1-t)*(szb+zb)+(t^3)*zb
+obj.draw()
+
+--補助線
+if(se==1) then
+  a=1/2
+  obj.setoption("billboard",3)
+  obj.load("figure","Circle",color,50)
+  obj.draw(xa,ya,za,1,a)
+  obj.draw(xb,yb,zb,1,a)
+  obj.setoption("billboard",3)
+  obj.load("figure","Square",color,50)
+  obj.draw(xa+sxa,ya+sya,za+sza,1,a)
+  obj.draw(xb+sxb,yb+syb,zb+szb,1,a)
+  obj.setoption("billboard",3)
+  obj.load("figure","Circle",color,10)
+  n=20
+  for i=0,n-1 do
+    t=i/n
+    x=((1-t)^3)*xa+3*t*((1-t)^2)*(sxa+xa)+3*(t^2)*(1-t)*(sxb+xb)+(t^3)*xb
+    y=((1-t)^3)*ya+3*t*((1-t)^2)*(sya+ya)+3*(t^2)*(1-t)*(syb+yb)+(t^3)*yb
+    z=((1-t)^3)*za+3*t*((1-t)^2)*(sza+za)+3*(t^2)*(1-t)*(szb+zb)+(t^3)*zb
+    obj.draw(x,y,z,1,a)
+  end
+end
+
+
+@Random Multi-Spin
+--track0:Count,1,50,5,1
+--track1:vSpin,0,800,100
+--track2:SpinRng,0,800,100
+--track3:ScaleRng,0,100,100
+obj.effect()
+n=obj.track0
+v=obj.track1/100
+rv=obj.track2
+ms=obj.track3
+for i=0,n-1 do
+  s=obj.rand(ms,100,i,6)/100
+  rx=obj.rand(0,360,i,0)+obj.rand(-rv,rv,i,3)*obj.time*v
+  ry=obj.rand(0,360,i,1)+obj.rand(-rv,rv,i,4)*obj.time*v
+  rz=obj.rand(0,360,i,2)+obj.rand(-rv,rv,i,5)*obj.time*v
+  obj.draw(0,0,0,s,1,rx,ry,rz)
+end
+
+@CirclePlacement_layer-A
+--track0:Count,0,100,6,1
+--track1:Dist,0,2000,200
+--track2:Zoom%,0,800,100
+--track3:Spin,-720,720,0
+--check0:Outward-facing,0
+n=obj.track0
+l=obj.track1
+s=obj.track2/100
+k=obj.track3
+lay=obj.layer
+soto=0
+r=360*(obj.layer-lay)/n+k
+obj.ox=math.sin(r*math.pi/180)*l*s
+obj.oy=-math.cos(r*math.pi/180)*l*s
+obj.zoom=obj.zoom*s
+obj.rz=r
+if(obj.check0) then
+  obj.ox=-obj.ox
+  obj.rz =-obj.rz-180
+  soto=1
+end
+x=obj.x
+y=obj.y
+z=obj.z
+
+@CirclePlacement_layer-B
+r=360*(obj.layer-lay)/n+k
+obj.ox=math.sin(r*math.pi/180)*l*s+x
+obj.oy=-math.cos(r*math.pi/180)*l*s+y
+obj.oz=z
+obj.zoom=obj.zoom*s
+obj.rz=r
+if(soto==1) then
+  obj.ox=-obj.ox
+  obj.rz =-obj.rz-180
+end
+
+@Circle-Camera_layer-A
+--track0:Count,0,100,6,1
+--track1:Dist,-20000,20000,500
+--track2:Zoom%,0,800,100
+--track3:Spin,-720,720,0
+n=obj.track0
+l=obj.track1
+s=obj.track2/100
+k=obj.track3
+lay=obj.layer
+r=360*(obj.layer-lay)/n+k
+obj.ox=math.sin(r*math.pi/180)*l*s
+obj.oz=-math.cos(r*math.pi/180)*l*s
+obj.zoom=obj.zoom*s
+x=obj.x
+y=obj.y
+z=obj.z
+
+@Circle-Camera_layer-B
+r=360*(obj.layer-lay)/n+k
+obj.ox=math.sin(r*math.pi/180)*l*s+x
+obj.oy=y
+obj.oz=-math.cos(r*math.pi/180)*l*s+z
+obj.zoom=obj.zoom*s
+
+
+
+@Honeycomb
+--track0:XIntvl,-1000,1000,100
+--track1:YIntvl,-1000,1000,100
+--track2:X#,1,100,5,1
+--track3:Y#,1,100,3,1
+obj.effect()
+nx=obj.track2
+ny=obj.track3
+gx=obj.track0/100-(1-math.cos(math.pi*30/180))
+gy=obj.track1/100-(1-math.sin(math.pi*30/180)*1.5)
+w=obj.w
+h=obj.h
+for j=0,ny-1 do
+  y0=-(ny+(ny-1)*(gy-1))*h/2 + h*j*gy
+  y2=-(ny+(ny-1)*(gy-1))*h/2 + h*(j*gy+1)
+  for i=0,nx-1 do
+    x0=-(nx+(nx-1)*(gx-1))*w/2 + w*i*gx
+    x1=-(nx+(nx-1)*(gx-1))*w/2 + w*(i*gx+1)
+    if(j%2==0) then
+      x0=x0+w/2*gx
+      x1=x1+w/2*gx
+    end
+    obj.drawpoly(x0,y0,0,x1,y0,0,x1,y2,0,x0,y2,0, 0,0,w,0,w,h,0,h)      
+  end
+end
+
+
+
+
+@RandomBlinking2
+--track0:Count,0,1000,5,1
+--track1:Range,0,1000,100
+--track2:Speed,0,1000,0
+--track3:vAngular,0,1000,0
+--dialog:Max[s],max=5;Min[s],min=1;Start[s],f=3;Threshold[%],si=0;X-Range[%],wx=100;Y-Range[%],wy=100;Z-Range[%],wz=0;X-Spin/chk,kx=0;Y-Spin/chk,ky=0;Z-Spin/chk,kz=1;Min.Zoom[-%],s_min=0;
+obj.effect()
+n=obj.track0  --個数
+w=obj.track1/100  --範囲
+v=obj.track2/100  --移動速度
+r=obj.track3/100  --回転速度
+for i=0,n-1 do
+  x=(obj.rand(-obj.screen_w-obj.w,obj.screen_w+obj.w,i,0)/2*w + obj.rand(-100,100,i,3)*obj.time*v)*wx/100
+  y=(obj.rand(-obj.screen_h-obj.h,obj.screen_h+obj.h,i,1)/2*w + obj.rand(-100,100,i,4)*obj.time*v)*wy/100
+  z=(obj.rand(-obj.screen_w-obj.w,obj.screen_w+obj.w,i,2)/2*w + obj.rand(-100,100,i,5)*obj.time*v)*wz/100
+  s=obj.rand(100-s_min,100,i,6)/100
+  rx=(obj.rand(0,360,i,7) + obj.rand(-100,100,i,10)*obj.time*r)*kx
+  ry=(obj.rand(0,360,i,8) + obj.rand(-100,100,i,11)*obj.time*r)*ky
+  rz=(obj.rand(0,360,i,9) + obj.rand(-100,100,i,12)*obj.time*r)*kz
+  t=obj.rand(min*1000,max*1000,0,i)/1000
+  alp=math.cos(2*math.pi*(obj.time+f)*(1/t))*(0.5+0.5*si/100)+0.5-0.5*si/100
+  obj.draw(x,y,z,s,alp,rx,ry,rz)
+end
+
+@Loop-ANM
+--track0:Loop[s],0,20,1,0.01
+--track1:Idle[s],0,20,0.2,0.01
+--track2:Zoom+%,-100,800,50
+--track3:rAspect,-100,100,0
+--dialog:X,x=0;Y,y=0;Z,z=0;X-Spin,rx=0;Y-Spin,ry=0;Z-Spin,rz=0;Start[s],f=0;Wait-twice/chk,wait=0;
+t=obj.track0
+w=math.min(obj.track1,t)
+r=0
+time0=(math.max(obj.time-f,0))%t
+if(wait==0) then
+  if(time0<=t-w and time0~=0) then
+    r=math.sin(math.pi*(time0)/(t-w))
+  end
+else
+  time1=(math.max(obj.time-f,0))%(2*t)
+  if(time1<=t-w) then
+    r=math.sin(math.pi*time0/(t-w)/2)
+  elseif(time1<=t) then
+    r=1
+  elseif(time1<=2*t-w) then
+    r=1-math.sin(math.pi*time0/(t-w)/2)
+  end
+end
+obj.ox=obj.ox+x*r
+obj.oy=obj.oy+y*r
+obj.oz=obj.oz+z*r
+obj.zoom=obj.zoom*(1+obj.track2/100*r)
+obj.aspect=obj.aspect+obj.track3/100*r
+obj.rx=obj.rx+rx*r
+obj.ry=obj.ry+ry*r
+obj.rz=obj.rz+rz*r
+
+@Butterfly
+--track0:Flap,0,500,100
+--track1:Angle,0,180,120
+--track2:UpDown,0,200,30
+--track3:Manual,-720,720,0
+obj.effect()
+r=math.sin(math.pi*2*obj.time*obj.track0/100)
+f=(obj.track1*r+obj.track3)*math.pi/180
+x=-obj.w/2*(1+math.cos(f))/2
+z=-obj.w/2*math.sin(f/2)
+obj.oy=r*obj.track2
+obj.rx=-30
+w=obj.w/2
+h=obj.h/2
+obj.drawpoly(x,-h,z, 0,-h,0, 0,h,0,x,h,z, 0,0,  w,0,  w,h*2,0,h*2)
+obj.drawpoly(0,-h,0,-x,-h,z,-x,h,z,0,h,0, w,0,w*2,0,w*2,h*2,w,h*2)
+
+@CardFaces
+--file:
+obj.effect()
+obj.draw()
+obj.setoption("culling",1)
+obj.load(file)
+obj.effect()
+obj.draw(0,0,0,1,1,0,180,-obj.getvalue("rz")*2)
+
+
+@RandomPlacementFaces(B)
+--track0:Flip,0,1,0,1
+--file:
+obj.effect()
+for i=0,n-1 do
+  x=(obj.rand(-obj.screen_w-obj.w,obj.screen_w+obj.w,-1-i,0)/2*w + obj.rand(-100,100,-1-i,3)*obj.time*v)*wx/100
+  y=(obj.rand(-obj.screen_h-obj.h,obj.screen_h+obj.h,-1-i,1)/2*w + obj.rand(-100,100,-1-i,4)*obj.time*v)*wy/100
+  z=(obj.rand(-obj.screen_w-obj.w,obj.screen_w+obj.w,-1-i,2)/2*w + obj.rand(-100,100,-1-i,5)*obj.time*v)*wz/100
+  s=obj.rand(100-s_min,100,-1-i,6)/100
+  rx=(obj.rand(0,360,-1-i,7) + obj.rand(-100,100,-1-i,10)*obj.time*r)*kx
+  ry=(obj.rand(0,360,-1-i,8) + obj.rand(-100,100,-1-i,11)*obj.time*r)*ky
+  rz=(obj.rand(0,360,-1-i,9) + obj.rand(-100,100,-1-i,12)*obj.time*r)*kz
+  obj.draw(x,y,z,s,1,rx,ry,rz)
+end
+
+obj.setoption("culling",1)
+obj.load(file)
+obj.effect("Reversal","Flip horizontal",obj.track0)
+obj.effect()
+for i=0,n-1 do
+  x=(obj.rand(-obj.screen_w-obj.w,obj.screen_w+obj.w,-1-i,0)/2*w + obj.rand(-100,100,-1-i,3)*obj.time*v)*wx/100
+  y=(obj.rand(-obj.screen_h-obj.h,obj.screen_h+obj.h,-1-i,1)/2*w + obj.rand(-100,100,-1-i,4)*obj.time*v)*wy/100
+  z=(obj.rand(-obj.screen_w-obj.w,obj.screen_w+obj.w,-1-i,2)/2*w + obj.rand(-100,100,-1-i,5)*obj.time*v)*wz/100
+  s=obj.rand(100-s_min,100,-1-i,6)/100
+  rx=(obj.rand(0,360,-1-i,7) + obj.rand(-100,100,-1-i,10)*obj.time*r)*kx
+  ry=(obj.rand(0,360,-1-i,8) + obj.rand(-100,100,-1-i,11)*obj.time*r)*ky
+  rz=(obj.rand(0,360,-1-i,9) + obj.rand(-100,100,-1-i,12)*obj.time*r)*kz
+  obj.draw(x,y,z,s,1,rx,ry+180,-rz-obj.getvalue("rz")*2)
+end
+
+
+@ParticleFacing(B)
+--track0:Flip,0,1,0,1
+--file:
+obj.effect()
+n=obj.totaltime/b
+for i=0,n-1 do
+  t=(v-obj.time+i*b)/v
+  t=math.min(1,math.max(t,0))
+  direct=obj.rand(dir-dir_ran/2,dir+dir_ran/2,i,0)
+  x=   l*math.cos(direct*math.pi/180)*(1-t)*obj.rand(100-v_ran,100,-1-i,12)/100+obj.rand(-x_ran/2,x_ran/2,-1-i,1)
+  y=   l*math.sin(direct*math.pi/180)*(1-t)*obj.rand(100-v_ran,100,-1-i,12)/100+obj.rand(-y_ran/2,y_ran/2,-1-i,2)
+  z=obj.rand(-zi_ran/2,zi_ran/2,-1-i,11)*(1-t)*obj.rand(100-v_ran,100,-1-i,12)/100+obj.rand(-z_ran/2,z_ran/2,-1-i,3)
+  zoom=1+sv/100*(1-t)-obj.rand(0,s_ran,-1-i,10)/100
+  alpha=1-av/100*(1-t)
+  rx=rxy_ran*(obj.rand(0,360,-1-i,4)    +obj.rand(-rv_ran/2,rv_ran/2,-1-i,7)*obj.time)
+  ry=rxy_ran*(obj.rand(0,360,-1-i,5)    +obj.rand(-rv_ran/2,rv_ran/2,-1-i,8)*obj.time)
+  rz=obj.rand(-rz_ran/2,rz_ran/2,-1-i,6)+obj.rand(-rv_ran/2,rv_ran/2,-1-i,9)*obj.time
+  if(t==0 or t==1) then
+    alpha=0
+  end
+  obj.draw(x,y,z,zoom,alpha,rx,ry,rz)
+end
+
+obj.setoption("culling",1)
+obj.load(file)
+obj.effect("Reversal","Flip horizontal",obj.track0)
+obj.effect()
+for i=0,n-1 do
+  t=(v-obj.time+i*b)/v
+  t=math.min(1,math.max(t,0))
+  direct=obj.rand(dir-dir_ran/2,dir+dir_ran/2,i,0)
+  x=   l*math.cos(direct*math.pi/180)*(1-t)*obj.rand(100-v_ran,100,-1-i,12)/100+obj.rand(-x_ran/2,x_ran/2,-1-i,1)
+  y=   l*math.sin(direct*math.pi/180)*(1-t)*obj.rand(100-v_ran,100,-1-i,12)/100+obj.rand(-y_ran/2,y_ran/2,-1-i,2)
+  z=obj.rand(-zi_ran/2,zi_ran/2,-1-i,11)*(1-t)*obj.rand(100-v_ran,100,-1-i,12)/100+obj.rand(-z_ran/2,z_ran/2,-1-i,3)
+  zoom=1+sv/100*(1-t)-obj.rand(0,s_ran,-1-i,10)/100
+  alpha=1-av/100*(1-t)
+  rx=rxy_ran*(obj.rand(0,360,-1-i,4)    +obj.rand(-rv_ran/2,rv_ran/2,-1-i,7)*obj.time)
+  ry=rxy_ran*(obj.rand(0,360,-1-i,5)    +obj.rand(-rv_ran/2,rv_ran/2,-1-i,8)*obj.time)
+  rz=obj.rand(-rz_ran/2,rz_ran/2,-1-i,6)+obj.rand(-rv_ran/2,rv_ran/2,-1-i,9)*obj.time
+  if(t==0 or t==1) then
+    alpha=0
+  end
+  obj.draw(x,y,z,zoom,alpha,rx,ry+180,-rz-obj.getvalue("rz")*2)
+end
+
+@Inscribe
+--track0:Depth,1,500,60
+--track1:Angle,-360,360,10
+--track2:Cut#,2,50,8,1
+sizew=obj.w/obj.getvalue("zoom")*100
+sizeh=obj.h/obj.getvalue("zoom")*100
+obj.setoption("dst","tmp",sizew,sizeh)
+obj.effect("Diagonal clipping","Center Y",obj.track0,"Angle",obj.track1)
+obj.effect("Diagonal clipping","Center Y",-obj.track0,"Angle",180-obj.track1)
+obj.effect("Diagonal clipping","Angle",270)
+n=math.floor(obj.track2/2)*2
+for i=0,n-1 do
+  obj.draw(0,0,0,1,1,0,0,360/n*i)
+end
+obj.load("tempbuffer")
+
+@Stretch
+--track0:Extension,0,800,0
+--track1:Width[%],0.1,100,10
+--track2:Ref[%],-100,100,0
+--track3:Center[%],-100,100,0
+--dialog:Vertical/chk,dir=0;Show width/chk,alp=0;
+obj.effect()
+w=obj.w/2
+h=obj.h/2
+if(dir<1) then
+  natto=obj.w*obj.track0/100
+  haba=obj.w*obj.track1/100
+  c=(obj.w-haba)/2*obj.track2/100
+  t=natto*obj.track3/100
+
+  c0=c-haba/2-natto+t
+  c1=c+haba/2+natto+t
+  x0=-w-natto+t
+  x1= w+natto+t
+  u0=w+c-haba/2
+  u1=w+c+haba/2
+  obj.drawpoly(x0,-h,0,c0+1,-h,0,c0+1,h,0,x0,h,0, 0,0,u0+1,0,u0+1,h*2,0,h*2)
+  obj.drawpoly(c1-1,-h,0,x1,-h,0,x1,h,0,c1-1,h,0, u1-1,0,w*2,0,w*2,h*2,u1-1,h*2)
+  obj.drawpoly(c0,-h,0,c1,-h,0,c1,h,0,c0,h,0, u0,0,u1,0,u1,h*2,u0,h*2,1-alp/2)
+else
+  natto=obj.h*obj.track0/100
+  haba=obj.h*obj.track1/100
+  c=(obj.h-haba)/2*obj.track2/100
+  t=natto*obj.track3/100
+
+  c0=c-haba/2-natto+t
+  c1=c+haba/2+natto+t
+  y0=-h-natto+t
+  y1= h+natto+t
+  v0=h+c-haba/2
+  v1=h+c+haba/2
+  obj.drawpoly(-w,y0,0,w,y0,0,w,c0+1,0,-w,c0+1,0, 0,0,w*2,0,w*2,v0+1,0,v0+1)
+  obj.drawpoly(-w,c1-1,0,w,c1-1,0,w,y1,0,-w,y1,0, 0,v1-1,w*2,v1-1,w*2,h*2,0,h*2)
+  obj.drawpoly(-w,c0,0,w,c0,0,w,c1,0,-w,c1,0, 0,v0,w*2,v0,w*2,v1,0,v1,1-alp/2)
+end
+
