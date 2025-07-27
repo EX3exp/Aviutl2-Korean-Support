@@ -1,0 +1,34 @@
+name: Deploy Release (Windows)
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Zip
+        run: |
+          $VERSION="${{ github.ref_name }}"
+          echo $VERSION
+          $compress = @{
+          Path = "./Script/*", "./한국어.aul2", "./style.conf"
+          CompressionLevel = "Fastest"
+          DestinationPath = "./Aviutl2-Korean-Support.zip"
+          }
+          Compress-Archive @compress
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          files: |
+            Aviutl2-Korean-Support.zip
