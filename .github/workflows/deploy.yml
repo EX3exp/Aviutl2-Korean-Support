@@ -2,15 +2,10 @@ name: Deploy Release (Windows)
 
 on:
   push:
-    tags:
-      - "*"
-
-permissions:
-  contents: write
+    branches: [ "main" ]
 
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
