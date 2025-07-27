@@ -3,7 +3,12 @@ name: Deploy Release (Windows)
 on:
   push:
     branches: [ "main" ]
+    tags:
+      - "*"
 
+permissions:
+  contents: write
+  
 jobs:
   build:
     runs-on: windows-latest
