@@ -21,13 +21,17 @@ jobs:
         run: |
           $TAG = "${{ github.ref_name }}"
           echo $TAG
+
+
+      - name: Bump version and push tag
+        id: bump
+        uses: anothrNick/github-tag-action@v1 # Don't use @master or @v1 unless you're happy to test the latest version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
+          WITH_V: false
           
       - name: Zip
         run: |
-          $VERSION="${{ github.ref_name }}"
-          echo $VERSION
-          git tag v$VERSION
-          git push origin v$VERSION
           $compress = @{
           Path = "./Script/*", "./한국어.aul2", "./style.conf"
           CompressionLevel = "Fastest"
@@ -41,3 +45,4 @@ jobs:
           prerelease: true
           files: |
             Aviutl2-Korean-Support.zip
+          tag_name: ${{ steps.bump.outputs.new_tag }}
