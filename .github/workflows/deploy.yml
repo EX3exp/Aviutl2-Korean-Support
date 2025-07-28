@@ -24,7 +24,7 @@ jobs:
       - name: Zip
         run: |
           $compress = @{
-          Path = "./Script/*", "./한국어.aul2", "./style.conf"
+          Path = "./Script", "./한국어.aul2", "./style.conf"
           CompressionLevel = "Fastest"
           DestinationPath = "./Aviutl2-Korean-Support.zip"
           }
