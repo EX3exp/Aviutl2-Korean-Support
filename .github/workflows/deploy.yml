@@ -23,12 +23,10 @@ jobs:
           
       - name: Zip
         run: |
-          $compress = @{
-          Path = "./Script", "./한국어.aul2", "./style.conf"
-          CompressionLevel = "Fastest"
-          DestinationPath = "./Aviutl2-Korean-Support.zip"
-          }
-          Compress-Archive @compress
+          Compress-Archive `
+          -LiteralPath "./Script", "./한국어.aul2", "./style.conf" `
+          -CompressionLevel Fastest `
+          -DestinationPath "./Aviutl2-Korean-Support.zip"
 
       - name: Release
         uses: softprops/action-gh-release@v1
